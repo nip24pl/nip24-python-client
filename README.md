@@ -10,6 +10,11 @@ on-line validations of Polish and EU companies. Please, visit our web page for m
 
 The documentation and samples are available at https://nip24.pl/dokumentacja/
 
+# Version
+
+Version 1.3.3 is the last version compatible with Python 2.7 and is available for download here: https://github.com/nip24pl/nip24-python-client/releases/tag/1.3.3
+Begining from version 1.3.4 only Python 3.7 and newer is supported.
+
 # License
 
 This project is delivered under Apache License, Version 2.0:

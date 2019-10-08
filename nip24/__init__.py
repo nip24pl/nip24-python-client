@@ -20,19 +20,19 @@
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
-from number import *
-from pkd import *
-from invoicedata import *
-from alldata import *
-from viesdata import *
-from vatstatus import *
-from ibanstatus import *
-from accountstatus import *
-from nip import *
-from regon import *
-from krs import *
-from euvat import *
-from iban import *
-from nip24client import *
+from nip24.number import *
+from nip24.pkd import *
+from nip24.invoicedata import *
+from nip24.alldata import *
+from nip24.viesdata import *
+from nip24.vatstatus import *
+from nip24.ibanstatus import *
+from nip24.accountstatus import *
+from nip24.nip import *
+from nip24.regon import *
+from nip24.krs import *
+from nip24.euvat import *
+from nip24.iban import *
+from nip24.nip24client import *
 
-__version__ = '1.3.3'
+__version__ = '1.3.4'

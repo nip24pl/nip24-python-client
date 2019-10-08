@@ -42,7 +42,7 @@ class NIP:
         if not nip:
             return False
 
-        nip = nip.strip().translate(None, '-')
+        nip = re.sub('[ -]', '', nip).upper()
 
         if not re.match('[0-9]{10}', nip):
             return False

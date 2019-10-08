@@ -43,7 +43,7 @@ class IBAN:
         if not iban:
             return False
 
-        iban = iban.strip().translate(None, '-').translate(None, ' ').upper()
+        iban = re.sub('[ -]', '', iban).upper()
 
         if not re.match('[A-Z]{2}[0-9A-Z]{13,30}', iban):
             return False

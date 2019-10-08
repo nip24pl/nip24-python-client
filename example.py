@@ -41,44 +41,44 @@ account = nip24.getAccountStatus()
 if account:
     pprint(vars(account))
 else:
-    print u'Błąd: ' + nip24.getLastError()
+    print('Błąd: ' + nip24.getLastError())
 
 # Sprawdzenie statusu fimy
 active = nip24.isActiveExt(Number.NIP, nip)
 
 if active:
-    print u'Firma prowadzi aktywną działalność'
+    print('Firma prowadzi aktywną działalność')
 else:
     if not nip24.getLastError():
-        print u'Firma zawiesiła lub zakończyła działalność'
+        print('Firma zawiesiła lub zakończyła działalność')
     else:
-        print u'Błąd: ' + nip24.getLastError()
+        print('Błąd: ' + nip24.getLastError())
 
 # Sprawdzenie statusu firmy w rejestrze VAT
 vat = nip24.getVATStatusExt(Number.NIP, nip, True)
 
 if vat:
-    print u'NIP: ' + vat.nip
-    print u'REGON: ' + vat.regon
-    print u'Nazwa firmy: ' + vat.name
-    print u'Status: ' + str(vat.status)
-    print u'Wynik: ' + vat.result
-    print u'Data sprawdzenia: ' + vat.date.strftime('%Y-%m-%d')
-    print u'Źródło: ' + vat.source
+    print('NIP: ' + vat.nip)
+    print('REGON: ' + vat.regon)
+    print('Nazwa firmy: ' + vat.name)
+    print('Status: ' + str(vat.status))
+    print('Wynik: ' + vat.result)
+    print('Data sprawdzenia: ' + vat.date.strftime('%Y-%m-%d'))
+    print('Źródło: ' + vat.source)
 else:
-    print u'Błąd: ' + nip24.getLastError()
+    print('Błąd: ' + nip24.getLastError())
 
 # Wywołanie metody zwracającej dane do faktury
 invoice = nip24.getInvoiceDataExt(Number.NIP, nip, False)
 
 if invoice:
-    print u'Nazwa: ' + invoice.name
-    print u'Imię i nazwisko: ' + invoice.firstname + ' ' + invoice.lastname
-    print u'Adres: ' + invoice.postCode + ' ' + invoice.postCity + ' ' + invoice.street \
-        + ' ' + invoice.streetNumber
-    print u'NIP: ' + invoice.nip
+    print('Nazwa: ' + invoice.name)
+    print('Imię i nazwisko: ' + invoice.firstname + ' ' + invoice.lastname)
+    print('Adres: ' + invoice.postCode + ' ' + invoice.postCity + ' ' + invoice.street
+          + ' ' + invoice.streetNumber)
+    print('NIP: ' + invoice.nip)
 else:
-    print u'Błąd: ' + nip24.getLastError()
+    print('Błąd: ' + nip24.getLastError())
 
 # Wywołanie metody zwracającej szczegółowe dane firmy
 all = nip24.getAllDataExt(Number.NIP, nip, False)
@@ -86,7 +86,7 @@ all = nip24.getAllDataExt(Number.NIP, nip, False)
 if all:
     pprint(vars(all))
 else:
-    print u'Błąd: ' + nip24.getLastError()
+    print('Błąd: ' + nip24.getLastError())
 
 # Wywołanie metody zwracającej dane z systemu VIES
 vies = nip24.getVIESData(nip_eu)
@@ -94,7 +94,7 @@ vies = nip24.getVIESData(nip_eu)
 if vies:
     pprint(vars(vies))
 else:
-    print u'Błąd: ' + nip24.getLastError()
+    print('Błąd: ' + nip24.getLastError())
 
 # Wywołanie metody zwracającej informacje o rachunku bankowym
 iban = nip24.getIBANStatusExt(Number.NIP, nip, account_number)
@@ -102,4 +102,4 @@ iban = nip24.getIBANStatusExt(Number.NIP, nip, account_number)
 if iban:
     pprint(vars(iban))
 else:
-    print u'Błąd: ' + nip24.getLastError()
+    print('Błąd: ' + nip24.getLastError())

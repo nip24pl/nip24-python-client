@@ -27,8 +27,8 @@ import hmac
 import os
 import sys
 import time
-import urllib2
-import urlparse
+import urllib.request
+import urllib.parse
 
 from nip24 import Number, NIP, REGON, KRS, EUVAT, PKD, IBAN, AllData, InvoiceData, VIESData, VATStatus, IBANStatus, AccountStatus
 from io import BytesIO
@@ -40,7 +40,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.3.3'
+    VERSION = '1.3.4'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -68,7 +68,7 @@ class NIP24Client:
             self.__id__ = id
             self.__key__ = key
 
-        self.__err__ = u''
+        self.__err__ = ''
 
     def setURL(self, url):
         """
@@ -105,7 +105,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = u''
+        self.__err__ = ''
 
         # validate number and construct path
         suffix = self.__getPathSuffix(type, number)
@@ -120,14 +120,14 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = u'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = u'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
             return False
 
         err = self.__get_text(doc, '/result/error/code/text()')
@@ -135,7 +135,7 @@ class NIP24Client:
         if len(err) > 0:
             if int(err) == 9:
                 # not active
-                self.__err__ = u''
+                self.__err__ = ''
                 return False
             else:
                 self.__err__ = self.__get_text(doc, '/result/error/description/text()')
@@ -173,7 +173,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = u''
+        self.__err__ = ''
 
         # validate number and construct path
         suffix = self.__getPathSuffix(type, number)
@@ -188,14 +188,14 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = u'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = u'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
             return False
 
         err = self.__get_text(doc, '/result/error/code/text()')
@@ -256,7 +256,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = u''
+        self.__err__ = ''
 
         # validate number and construct path
         suffix = self.__getPathSuffix(type, number)
@@ -271,14 +271,14 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = u'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = u'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
             return False
 
         err = self.__get_text(doc, '/result/error/code/text()')
@@ -380,7 +380,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = u''
+        self.__err__ = ''
 
         # validate number and construct path
         suffix = self.__getPathSuffix(Number.EUVAT, euvat)
@@ -395,14 +395,14 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = u'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = u'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
             return False
 
         err = self.__get_text(doc, '/result/error/code/text()')
@@ -459,7 +459,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = u''
+        self.__err__ = ''
 
         # validate number and construct path
         suffix = self.__getPathSuffix(type, number)
@@ -474,14 +474,14 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = u'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = u'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
             return False
 
         err = self.__get_text(doc, '/result/error/code/text()')
@@ -539,7 +539,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = u''
+        self.__err__ = ''
 
         # validate number and construct path
         suffix = self.__getPathSuffix(type, number)
@@ -551,7 +551,7 @@ class NIP24Client:
             iban = 'PL' + iban
 
             if not IBAN.isValid(iban):
-                self.__err__ = u'Numer IBAN jest nieprawidłowy'
+                self.__err__ = 'Numer IBAN jest nieprawidłowy'
                 return False
 
         if not date:
@@ -564,14 +564,14 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = u'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = u'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
             return False
 
         err = self.__get_text(doc, '/result/error/code/text()')
@@ -605,7 +605,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = u''
+        self.__err__ = ''
 
         # prepare url
         url = self.__url__ + '/check/account/status'
@@ -614,14 +614,14 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = u'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = u'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
             return False
 
         err = self.__get_text(doc, '/result/error/code/text()')
@@ -632,7 +632,7 @@ class NIP24Client:
 
         status = AccountStatus()
 
-        status.uid = self.__get_text(doc, '/result/vat/uid/text()')
+        status.uid = self.__get_text(doc, '/result/account/uid/text()')
         status.billingPlanName = self.__get_text(doc, '/result/account/billingPlan/name/text()')
         
         status.subscriptionPrice = float('0' + self.__get_text(doc, '/result/account/billingPlan/subscriptionPrice/text()'))
@@ -697,7 +697,7 @@ class NIP24Client:
         """
 
         # parse url
-        u = urlparse.urlparse(url)
+        u = urllib.parse.urlparse(url)
         ls = u.netloc.split(':')
 
         host = ls[0]
@@ -707,7 +707,7 @@ class NIP24Client:
             port = ls[1]
 
         # prepare auth header value
-        nonce = os.urandom(4).encode('hex')
+        nonce = os.urandom(4).hex()
         ts = int(time.time())
 
         s = '' + str(ts) + '\n' \
@@ -718,7 +718,7 @@ class NIP24Client:
             + str(port) + '\n' \
             + '\n'
 
-        mac = base64.b64encode(hmac.new(self.__key__, s, self.HMAC_ALG).digest())
+        mac = base64.b64encode(hmac.new(self.__key__.encode(), s.encode(), self.HMAC_ALG).digest()).decode()
 
         return 'MAC id="' + self.__id__ + '", ts="' + str(ts) + '", nonce="' +  nonce + '", mac="' + mac + '"'
 
@@ -740,7 +740,7 @@ class NIP24Client:
         :param url: target URL
         :type url: str
         :returns: result content or False
-        :rtype: str or False
+        :rtype: bytearray or False
         """
 
         # auth
@@ -751,13 +751,13 @@ class NIP24Client:
 
         # send request
         try :
-            req = urllib2.Request(url)
+            req = urllib.request.Request(url)
             req.add_header('User-Agent', self.__user_agent())
             req.add_header('Authorization', auth)
 
-            res = urllib2.urlopen(req)
+            res = urllib.request.urlopen(req)
             content = res.read()
-        except urllib2.URLError, ue:
+        except urllib.request.URLError as ue:
             #print ue.code
             return False
 
@@ -778,12 +778,12 @@ class NIP24Client:
         s = doc.xpath(xpath_)
 
         if not s:
-            return u''
+            return ''
 
         if len(s) != 1:
-            return u''
+            return ''
 
-        return unicode(s[0].strip())
+        return str(s[0].strip())
 
     def __get_date_time(self, doc, xpath_):
         """
@@ -845,30 +845,30 @@ class NIP24Client:
 
         if type == Number.NIP:
             if not NIP.isValid(number):
-                self.__err__ = u'Numer NIP jest nieprawidłowy'
+                self.__err__ = 'Numer NIP jest nieprawidłowy'
                 return False
 
             path = 'nip/' + NIP.normalize(number)
         elif type == Number.REGON:
             if not REGON.isValid(number):
-                self.__err__ = u'Numer REGON jest nieprawidłowy'
+                self.__err__ = 'Numer REGON jest nieprawidłowy'
                 return False
 
             path = 'regon/' + REGON.normalize(number)
         elif type == Number.KRS:
             if not KRS.isValid(number):
-                self.__err__ = u'Numer KRS jest nieprawidłowy'
+                self.__err__ = 'Numer KRS jest nieprawidłowy'
                 return False
 
             path = 'krs/' + KRS.normalize(number)
         elif type == Number.EUVAT:
             if not EUVAT.isValid(number):
-                self.__err__ = u'Numer EU VAT ID jest nieprawidłowy'
+                self.__err__ = 'Numer EU VAT ID jest nieprawidłowy'
                 return False
 
             path = 'euvat/' + EUVAT.normalize(number)
         else:
-            self.__err__ = u'Nieprawidłowy typ numeru'
+            self.__err__ = 'Nieprawidłowy typ numer'
             return False
 
         return path

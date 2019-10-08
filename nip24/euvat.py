@@ -44,7 +44,7 @@ class EUVAT:
         if not nip:
             return False
 
-        nip = nip.strip().translate(None, '-').translate(None, ' ').upper()
+        nip = re.sub('[ -]', '', nip).upper()
 
         if not re.match('[A-Z]{2}[A-Z0-9]{2,12}', nip):
             return False
