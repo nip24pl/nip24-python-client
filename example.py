@@ -103,3 +103,11 @@ if iban:
     pprint(vars(iban))
 else:
     print('Błąd: ' + nip24.getLastError())
+
+# Wywołanie metody sprawdzającej status podmiotu na białej liście podatników VAT
+whitelist = nip24.getWhitelistStatusExt(Number.NIP, nip, account_number)
+
+if whitelist:
+    pprint(vars(whitelist))
+else:
+    print('Błąd: ' + nip24.getLastError())

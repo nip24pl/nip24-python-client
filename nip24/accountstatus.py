@@ -35,6 +35,7 @@ class AccountStatus:
         self.itemPriceInvoice = None
         self.itemPriceAll = None
         self.itemPriceIBAN = None
+        self.itemPriceWhitelist = None
         self.limit = None
         self.requestDelay = None
         self.domainLimit = None
@@ -53,10 +54,12 @@ class AccountStatus:
         self.funcGetVIESData = None
         self.funcGetVATStatus = None
         self.funcGetIBANStatus = None
+        self.funcGetWhitelistStatus = None
         self.invoiceDataCount = None
         self.allDataCount = None
         self.firmStatusCount = None
         self.vatStatusCount = None
         self.viesStatusCount = None
         self.ibanStatusCount = None
+        self.whitelistStatusCount = None
         self.totalCount = None

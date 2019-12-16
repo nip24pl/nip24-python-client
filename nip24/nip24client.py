@@ -30,7 +30,7 @@ import time
 import urllib.request
 import urllib.parse
 
-from nip24 import Number, NIP, REGON, KRS, EUVAT, PKD, IBAN, AllData, InvoiceData, VIESData, VATStatus, IBANStatus, AccountStatus
+from nip24 import Number, NIP, REGON, KRS, EUVAT, PKD, IBAN, AllData, InvoiceData, VIESData, VATStatus, IBANStatus, WLStatus, AccountStatus
 from io import BytesIO
 from lxml import etree
 from dateutil.parser import parse
@@ -40,7 +40,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.3.4'
+    VERSION = '1.3.5'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -596,6 +596,100 @@ class NIP24Client:
 
         return ibs
 
+    def getWhitelistStatus(self, nip, iban, date=None):
+        """
+        Check bank account status and VAT status using whitelist file
+
+        :param nip: NIP number
+        :type nip: str
+        :param iban: bank account IBAN (for polish numbers PL prefix may be omitted)
+        :type iban: str
+        :param date: date in format 'yyyy-mm-dd' (null - current day)
+        :type date: str
+        :return: WLStatus object or False
+        :rtype: WLStatus or False
+        """
+
+        return self.getWhitelistStatusExt(Number.NIP, nip, iban, date)
+
+    def getWhitelistStatusExt(self, type, number, iban, date=None):
+        """
+        Check bank account status and VAT status using whitelist file
+
+        :param type: search number type as Number.xxx value
+        :type type: Number
+        :param number: search number value
+        :type number: str
+        :param iban: bank account IBAN (for polish numbers PL prefix may be omitted)
+        :type iban: str
+        :param date: date in format 'yyyy-mm-dd' (None - current day)
+        :type date: str
+        :return: WLStatus object or False
+        :rtype: WLStatus or False
+        """
+
+        # clear error
+        self.__err__ = ''
+
+        # validate number and construct path
+        suffix = self.__getPathSuffix(type, number)
+
+        if not suffix:
+            return False
+
+        if not IBAN.isValid(iban):
+            iban = 'PL' + iban
+
+            if not IBAN.isValid(iban):
+                self.__err__ = 'Numer IBAN jest nieprawidłowy'
+                return False
+
+        if not date:
+            date = datetime.date.today().strftime('%Y-%m-%d')
+
+        # prepare url
+        url = self.__url__ + '/check/whitelist/' + suffix + '/' + IBAN.normalize(iban) + '/' + parse(date).strftime('%Y-%m-%d')
+
+        # send request
+        res = self.__get(url)
+
+        if not res:
+            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            return False
+
+        # parse response
+        doc = etree.parse(BytesIO(res))
+
+        if not doc:
+            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            return False
+
+        err = self.__get_text(doc, '/result/error/code/text()')
+
+        if len(err) > 0:
+            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+            return False
+
+        wls = WLStatus()
+
+        wls.uid = self.__get_text(doc, '/result/whitelist/uid/text()')
+
+        wls.nip = self.__get_text(doc, '/result/whitelist/nip/text()')
+        wls.iban = self.__get_text(doc, '/result/whitelist/iban/text()')
+
+        wls.valid = True if self.__get_text(doc, '/result/whitelist/valid/text()') == 'true' else False
+        wls.virtual = True if self.__get_text(doc, '/result/whitelist/virtual/text()') == 'true' else False
+
+        wls.status = int(self.__get_text(doc, '/result/whitelist/vatStatus/text()'))
+        wls.result = self.__get_text(doc, '/result/whitelist/vatResult/text()')
+
+        wls.hashIndex = int(self.__get_text(doc, '/result/whitelist/hashIndex/text()'))
+        wls.maskIndex = int(self.__get_text(doc, '/result/whitelist/maskIndex/text()'))
+        wls.date = self.__get_date(doc, '/result/whitelist/date/text()')
+        wls.source = self.__get_text(doc, '/result/whitelist/source/text()')
+
+        return wls
+
     def getAccountStatus(self):
         """
         Get user account's status
@@ -641,6 +735,7 @@ class NIP24Client:
         status.itemPriceInvoice = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceInvoiceData/text()'))
         status.itemPriceAll = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceAllData/text()'))
         status.itemPriceIBAN = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceIBANStatus/text()'))
+        status.itemPriceWhitelist = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceWLStatus/text()'))
         
         status.limit = int(self.__get_text(doc, '/result/account/billingPlan/limit/text()'))
         status.requestDelay = int(self.__get_text(doc, '/result/account/billingPlan/requestDelay/text()'))
@@ -663,6 +758,7 @@ class NIP24Client:
         status.funcGetVIESData = True if self.__get_text(doc, '/result/account/billingPlan/funcGetVIESData/text()') == 'true' else False
         status.funcGetVATStatus = True if self.__get_text(doc, '/result/account/billingPlan/funcGetVATStatus/text()') == 'true' else False
         status.funcGetIBANStatus = True if self.__get_text(doc, '/result/account/billingPlan/funcGetIBANStatus/text()') == 'true' else False
+        status.funcGetWhitelistStatus = True if self.__get_text(doc, '/result/account/billingPlan/funcGetWLStatus/text()') == 'true' else False
         
         status.invoiceDataCount = int(self.__get_text(doc, '/result/account/requests/invoiceData/text()'))
         status.allDataCount = int(self.__get_text(doc, '/result/account/requests/allData/text()'))
@@ -670,6 +766,7 @@ class NIP24Client:
         status.vatStatusCount = int(self.__get_text(doc, '/result/account/requests/vatStatus/text()'))
         status.viesStatusCount = int(self.__get_text(doc, '/result/account/requests/viesStatus/text()'))
         status.ibanStatusCount = int(self.__get_text(doc, '/result/account/requests/ibanStatus/text()'))
+        status.whitelistStatusCount = int(self.__get_text(doc, '/result/account/requests/wlStatus/text()'))
         status.totalCount = int(self.__get_text(doc, '/result/account/requests/total/text()'))
 
         return status

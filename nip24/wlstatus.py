@@ -20,20 +20,21 @@
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
-from nip24.number import *
-from nip24.pkd import *
-from nip24.invoicedata import *
-from nip24.alldata import *
-from nip24.viesdata import *
-from nip24.vatstatus import *
-from nip24.ibanstatus import *
-from nip24.wlstatus import *
-from nip24.accountstatus import *
-from nip24.nip import *
-from nip24.regon import *
-from nip24.krs import *
-from nip24.euvat import *
-from nip24.iban import *
-from nip24.nip24client import *
 
-__version__ = '1.3.5'
+class WLStatus:
+    """
+    Whitelist status info
+    """
+
+    def __init__(self):
+        self.uid = None
+        self.nip = None
+        self.iban = None
+        self.valid = None
+        self.virtual = None
+        self.status = None
+        self.result = None
+        self.hashIndex = None
+        self.maskIndex = None
+        self.date = None
+        self.source = None
