@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2019 NETCAT (www.netcat.pl)
+# Copyright 2015-2020 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2019 NETCAT (www.netcat.pl)
+# @copyright 2015-2020 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
 from nip24 import *
-from pprint import pprint
 
 # Utworzenie obiektu klienta usługi serwisu produkcyjnego
 # id – ciąg znaków reprezentujący identyfikator klucza
@@ -39,9 +38,9 @@ account_number = '49154000046458439719826658'
 account = nip24.getAccountStatus()
 
 if account:
-    pprint(vars(account))
+    print(account)
 else:
-    print('Błąd: ' + nip24.getLastError())
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
 
 # Sprawdzenie statusu fimy
 active = nip24.isActiveExt(Number.NIP, nip)
@@ -52,62 +51,60 @@ else:
     if not nip24.getLastError():
         print('Firma zawiesiła lub zakończyła działalność')
     else:
-        print('Błąd: ' + nip24.getLastError())
+        print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
 
 # Sprawdzenie statusu firmy w rejestrze VAT
-vat = nip24.getVATStatusExt(Number.NIP, nip, True)
+vat = nip24.getVATStatusExt(Number.NIP, nip)
 
 if vat:
-    print('NIP: ' + vat.nip)
-    print('REGON: ' + vat.regon)
-    print('Nazwa firmy: ' + vat.name)
-    print('Status: ' + str(vat.status))
-    print('Wynik: ' + vat.result)
-    print('Data sprawdzenia: ' + vat.date.strftime('%Y-%m-%d'))
-    print('Źródło: ' + vat.source)
+    print(vat)
 else:
-    print('Błąd: ' + nip24.getLastError())
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
 
 # Wywołanie metody zwracającej dane do faktury
-invoice = nip24.getInvoiceDataExt(Number.NIP, nip, False)
+invoice = nip24.getInvoiceDataExt(Number.NIP, nip)
 
 if invoice:
-    print('Nazwa: ' + invoice.name)
-    print('Imię i nazwisko: ' + invoice.firstname + ' ' + invoice.lastname)
-    print('Adres: ' + invoice.postCode + ' ' + invoice.postCity + ' ' + invoice.street
-          + ' ' + invoice.streetNumber)
-    print('NIP: ' + invoice.nip)
+    print(invoice)
 else:
-    print('Błąd: ' + nip24.getLastError())
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
 
 # Wywołanie metody zwracającej szczegółowe dane firmy
-all = nip24.getAllDataExt(Number.NIP, nip, False)
+all = nip24.getAllDataExt(Number.NIP, nip)
 
 if all:
-    pprint(vars(all))
+    print(all)
 else:
-    print('Błąd: ' + nip24.getLastError())
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
 
 # Wywołanie metody zwracającej dane z systemu VIES
 vies = nip24.getVIESData(nip_eu)
 
 if vies:
-    pprint(vars(vies))
+    print(vies)
 else:
-    print('Błąd: ' + nip24.getLastError())
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
 
 # Wywołanie metody zwracającej informacje o rachunku bankowym
 iban = nip24.getIBANStatusExt(Number.NIP, nip, account_number)
 
 if iban:
-    pprint(vars(iban))
+    print(iban)
 else:
-    print('Błąd: ' + nip24.getLastError())
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
 
 # Wywołanie metody sprawdzającej status podmiotu na białej liście podatników VAT
 whitelist = nip24.getWhitelistStatusExt(Number.NIP, nip, account_number)
 
 if whitelist:
-    pprint(vars(whitelist))
+    print(whitelist)
 else:
-    print('Błąd: ' + nip24.getLastError())
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')
+
+# Wywołanie metody wyszukującej dane w rejestrze VAT
+result = nip24.searchVATRegistryExt(Number.NIP, nip)
+
+if result:
+    print(result)
+else:
+    print('Błąd: ' + nip24.getLastError() + ' (kod: ' + str(nip24.getLastErrorCode()) + ')')

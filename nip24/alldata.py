@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2019 NETCAT (www.netcat.pl)
+# Copyright 2015-2020 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2019 NETCAT (www.netcat.pl)
+# @copyright 2015-2020 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -73,3 +73,52 @@ class AllData:
         self.ownershipFormCode = None
         self.ownershipFormName = None
         self.pkd = []
+
+    def __str__(self):
+        return 'AllData: [uid = ' + str(self.uid) \
+            + ', nip = ' + str(self.nip) \
+            + ', regon = ' + str(self.regon) \
+            + ', type = ' + str(self.type) \
+            + ', name = ' + str(self.name) \
+            + ', shortName = ' + str(self.shortname) \
+            + ', firstName = ' + str(self.firstname) \
+            + ', secondName = ' + str(self.secondname) \
+            + ', lastName = ' + str(self.lastname) \
+            + ', street = ' + str(self.street) \
+            + ', streetCode = ' + str(self.streetCode) \
+            + ', streetNumber = ' + str(self.streetNumber) \
+            + ', houseNumber = ' + str(self.houseNumber) \
+            + ', city = ' + str(self.city) \
+            + ', cityCode = ' + str(self.cityCode) \
+            + ', community = ' + str(self.community) \
+            + ', communityCode = ' + str(self.communityCode) \
+            + ', county = ' + str(self.county) \
+            + ', countyCode = ' + str(self.countyCode) \
+            + ', state = ' + str(self.state) \
+            + ', stateCode = ' + str(self.stateCode) \
+            + ', postCode = ' + str(self.postCode) \
+            + ', postCity = ' + str(self.postCity) \
+            + ', phone = ' + str(self.phone) \
+            + ', email = ' + str(self.email) \
+            + ', www = ' + str(self.www) \
+            + ', creationDate = ' + str(self.creationDate) \
+            + ', startDate = ' + str(self.startDate) \
+            + ', registrationDate = ' + str(self.registrationDate) \
+            + ', holdDate = ' + str(self.holdDate) \
+            + ', renevalDate = ' + str(self.renevalDate) \
+            + ', lastUpdateDate = ' + str(self.lastUpdateDate) \
+            + ', endDate = ' + str(self.endDate) \
+            + ', registryEntityCode = ' + str(self.registryEntityCode) \
+            + ', registryEntityName = ' + str(self.registryEntityName) \
+            + ', registryCode = ' + str(self.registryCode) \
+            + ', registryName = ' + str(self.registryName) \
+            + ', recordCreationDate = ' + str(self.recordCreationDate) \
+            + ', recordNumber = ' + str(self.recordNumber) \
+            + ', basicLegalFormCode = ' + str(self.basicLegalFormCode) \
+            + ', basicLegalFormName = ' + str(self.basicLegalFormName) \
+            + ', specificLegalFormCode = ' + str(self.specificLegalFormCode) \
+            + ', specificLegalFormName = ' + str(self.specificLegalFormName) \
+            + ', ownershipFormCode = ' + str(self.ownershipFormCode) \
+            + ', ownershipFormName = ' + str(self.ownershipFormName) \
+            + ', pkd = [' + ', '.join(str(e) for e in self.pkd) + ']' \
+            + ']'

@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2019 NETCAT (www.netcat.pl)
+# Copyright 2015-2020 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2019 NETCAT (www.netcat.pl)
+# @copyright 2015-2020 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -39,3 +39,14 @@ class VATStatus:
         self.result = None
         self.date = None
         self.source = None
+
+    def __str__(self):
+        return 'VATStatus: [uid = ' + str(self.uid) \
+            + ', nip = ' + str(self.nip) \
+            + ', regon = ' + str(self.regon) \
+            + ', name = ' + str(self.name) \
+            + ', status = ' + str(self.status) \
+            + ', result = ' + str(self.result) \
+            + ', date = ' + str(self.date) \
+            + ', source = ' + str(self.source) \
+            + ']'

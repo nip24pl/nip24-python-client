@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2019 NETCAT (www.netcat.pl)
+# Copyright 2015-2020 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2019 NETCAT (www.netcat.pl)
+# @copyright 2015-2020 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -30,7 +30,8 @@ import time
 import urllib.request
 import urllib.parse
 
-from nip24 import Number, NIP, REGON, KRS, EUVAT, PKD, IBAN, AllData, InvoiceData, VIESData, VATStatus, IBANStatus, WLStatus, AccountStatus
+from nip24 import Error, Number, NIP, REGON, KRS, EUVAT, PKD, IBAN, AllData, InvoiceData, VIESData, \
+    VATStatus, IBANStatus, WLStatus, VATPerson, VATEntity, SearchResult, AccountStatus
 from io import BytesIO
 from lxml import etree
 from dateutil.parser import parse
@@ -40,7 +41,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.3.5'
+    VERSION = '1.3.6'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -68,7 +69,7 @@ class NIP24Client:
             self.__id__ = id
             self.__key__ = key
 
-        self.__err__ = ''
+        self.__clear()
 
     def setURL(self, url):
         """
@@ -105,10 +106,10 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # validate number and construct path
-        suffix = self.__getPathSuffix(type, number)
+        suffix = self.__get_path_suffix(type, number)
 
         if not suffix:
             return False
@@ -120,25 +121,25 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            if int(err) == 9:
+        if len(code) > 0:
+            if int(code) == 9:
                 # not active
-                self.__err__ = ''
+                self.__clear()
                 return False
             else:
-                self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+                self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
                 return False
 
         # ok
@@ -173,10 +174,10 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # validate number and construct path
-        suffix = self.__getPathSuffix(type, number)
+        suffix = self.__get_path_suffix(type, number)
 
         if not suffix:
             return False
@@ -188,20 +189,20 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
             return False
 
         invoice = InvoiceData()
@@ -256,10 +257,10 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # validate number and construct path
-        suffix = self.__getPathSuffix(type, number)
+        suffix = self.__get_path_suffix(type, number)
 
         if not suffix:
             return False
@@ -271,20 +272,20 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
             return False
 
         all = AllData()
@@ -380,10 +381,10 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # validate number and construct path
-        suffix = self.__getPathSuffix(Number.EUVAT, euvat)
+        suffix = self.__get_path_suffix(Number.EUVAT, euvat)
 
         if not suffix:
             return False
@@ -395,20 +396,20 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
             return False
 
         vies = VIESData()
@@ -459,10 +460,10 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # validate number and construct path
-        suffix = self.__getPathSuffix(type, number)
+        suffix = self.__get_path_suffix(type, number)
 
         if not suffix:
             return False
@@ -474,20 +475,20 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
             return False
 
         vat = VATStatus()
@@ -539,10 +540,10 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # validate number and construct path
-        suffix = self.__getPathSuffix(type, number)
+        suffix = self.__get_path_suffix(type, number)
 
         if not suffix:
             return False
@@ -551,7 +552,7 @@ class NIP24Client:
             iban = 'PL' + iban
 
             if not IBAN.isValid(iban):
-                self.__err__ = 'Numer IBAN jest nieprawidłowy'
+                self.__set(Error.CLI_IBAN)
                 return False
 
         if not date:
@@ -564,20 +565,20 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
             return False
 
         ibs = IBANStatus()
@@ -629,10 +630,10 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # validate number and construct path
-        suffix = self.__getPathSuffix(type, number)
+        suffix = self.__get_path_suffix(type, number)
 
         if not suffix:
             return False
@@ -641,7 +642,7 @@ class NIP24Client:
             iban = 'PL' + iban
 
             if not IBAN.isValid(iban):
-                self.__err__ = 'Numer IBAN jest nieprawidłowy'
+                self.__set(Error.CLI_IBAN)
                 return False
 
         if not date:
@@ -654,20 +655,20 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
             return False
 
         wls = WLStatus()
@@ -690,6 +691,123 @@ class NIP24Client:
 
         return wls
 
+    def searchVATRegistry(self, nip, date=None):
+        """
+        Search data in VAT registry
+
+        :param nip: NIP number
+        :type nip: str
+        :param date: date in format 'yyyy-mm-dd' (null - current day)
+        :type date: str
+        :return: search result object or False
+        :rtype: SearchResult or False
+        """
+
+        return self.searchVATRegistryExt(Number.NIP, nip, date)
+
+    def searchVATRegistryExt(self, type, number, date=None):
+        """
+        Search data in VAT registry
+
+        :param type: search number type as Number.xxx value
+        :type type: Number
+        :param number: search number value
+        :type number: str
+        :param date: date in format 'yyyy-mm-dd' (None - current day)
+        :type date: str
+        :return: search result object or False
+        :rtype: SearchResult or False
+        """
+
+        # clear error
+        self.__clear()
+
+        # validate number and construct path
+        suffix = self.__get_path_suffix(type, number)
+
+        if not suffix:
+            return False
+
+        if not date:
+            date = datetime.date.today().strftime('%Y-%m-%d')
+
+        # prepare url
+        url = self.__url__ + '/search/vat/' + suffix + '/' + parse(date).strftime('%Y-%m-%d')
+
+        # send request
+        res = self.__get(url)
+
+        if not res:
+            self.__set(Error.CLI_CONNECT)
+            return False
+
+        # parse response
+        doc = etree.parse(BytesIO(res))
+
+        if not doc:
+            self.__set(Error.CLI_RESPONSE)
+            return False
+
+        code = self.__get_text(doc, '/result/error/code/text()')
+
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
+            return False
+
+        sr = SearchResult()
+
+        sr.uid = self.__get_text(doc, '/result/search/uid/text()')
+
+        i = 1
+        while True:
+            nip = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/nip/text()')
+
+            if len(nip) == 0:
+                break
+
+            ve = VATEntity()
+
+            ve.name = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/name/text()')
+            ve.nip = nip
+            ve.regon = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/regon/text()')
+            ve.krs = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/krs/text()')
+            ve.residenceAddress = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/residenceAddress/text()')
+            ve.workingAddress = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/workingAddress/text()')
+            ve.vatStatus = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/vat/status/text()')
+            ve.vatResult = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/vat/result/text()')
+
+            self.__get_vat_person(doc, '/result/search/entities/entity[' + str(i) + ']/representatives', ve.representatives)
+            self.__get_vat_person(doc, '/result/search/entities/entity[' + str(i) + ']/authorizedClerks', ve.authorizedClerks)
+            self.__get_vat_person(doc, '/result/search/entities/entity[' + str(i) + ']/partners', ve.partners)
+
+            k = 1
+            while True:
+                iban = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/ibans/iban[' + str(k) + ']/text()')
+
+                if len(iban) == 0:
+                    break
+
+                ve.ibans.append(iban)
+                k += 1
+
+            ve.hasVirtualAccounts = True if self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/hasVirtualAccounts/text()') == 'true' else False
+            ve.registrationLegalDate = self.__get_date(doc, '/result/search/entities/entity[' + str(i) + ']/registrationLegalDate/text()')
+            ve.registrationDenialDate = self.__get_date(doc, '/result/search/entities/entity[' + str(i) + ']/registrationDenialDate/text()')
+            ve.registrationDenialBasis = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/registrationDenialBasis/text()')
+            ve.restorationDate = self.__get_date(doc, '/result/search/entities/entity[' + str(i) + ']/restorationDate/text()')
+            ve.restorationBasis = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/restorationBasis/text()')
+            ve.removalDate = self.__get_date(doc, '/result/search/entities/entity[' + str(i) + ']/removalDate/text()')
+            ve.removalBasis = self.__get_text(doc, '/result/search/entities/entity[' + str(i) + ']/removalBasis/text()')
+
+            sr.results.append(ve)
+            i += 1
+
+        sr.id = self.__get_text(doc, '/result/search/id/text()')
+        sr.date = self.__get_date(doc, '/result/search/date/text()')
+        sr.source = self.__get_text(doc, '/result/search/source/text()')
+
+        return sr
+
     def getAccountStatus(self):
         """
         Get user account's status
@@ -699,7 +817,7 @@ class NIP24Client:
         """
 
         # clear error
-        self.__err__ = ''
+        self.__clear()
 
         # prepare url
         url = self.__url__ + '/check/account/status'
@@ -708,25 +826,27 @@ class NIP24Client:
         res = self.__get(url)
 
         if not res:
-            self.__err__ = 'Nie udało się nawiązać połączenia z serwisem NIP24'
+            self.__set(Error.CLI_CONNECT)
             return False
 
         # parse response
         doc = etree.parse(BytesIO(res))
 
         if not doc:
-            self.__err__ = 'Odpowiedź serwisu NIP24 ma nieprawidłowy format'
+            self.__set(Error.CLI_RESPONSE)
             return False
 
-        err = self.__get_text(doc, '/result/error/code/text()')
+        code = self.__get_text(doc, '/result/error/code/text()')
 
-        if len(err) > 0:
-            self.__err__ = self.__get_text(doc, '/result/error/description/text()')
+        if len(code) > 0:
+            self.__set(int(code), self.__get_text(doc, '/result/error/description/text()'))
             return False
 
         status = AccountStatus()
 
         status.uid = self.__get_text(doc, '/result/account/uid/text()')
+        status.type = self.__get_text(doc, '/result/account/type/text()')
+        status.validTo = self.__get_date_time(doc, '/result/account/validTo/text()')
         status.billingPlanName = self.__get_text(doc, '/result/account/billingPlan/name/text()')
         
         status.subscriptionPrice = float('0' + self.__get_text(doc, '/result/account/billingPlan/subscriptionPrice/text()'))
@@ -736,6 +856,7 @@ class NIP24Client:
         status.itemPriceAll = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceAllData/text()'))
         status.itemPriceIBAN = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceIBANStatus/text()'))
         status.itemPriceWhitelist = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceWLStatus/text()'))
+        status.itemPriceSearchVAT = float('0' + self.__get_text(doc, '/result/account/billingPlan/itemPriceSearchVAT/text()'))
         
         status.limit = int(self.__get_text(doc, '/result/account/billingPlan/limit/text()'))
         status.requestDelay = int(self.__get_text(doc, '/result/account/billingPlan/requestDelay/text()'))
@@ -759,6 +880,7 @@ class NIP24Client:
         status.funcGetVATStatus = True if self.__get_text(doc, '/result/account/billingPlan/funcGetVATStatus/text()') == 'true' else False
         status.funcGetIBANStatus = True if self.__get_text(doc, '/result/account/billingPlan/funcGetIBANStatus/text()') == 'true' else False
         status.funcGetWhitelistStatus = True if self.__get_text(doc, '/result/account/billingPlan/funcGetWLStatus/text()') == 'true' else False
+        status.funcSearchVAT = True if self.__get_text(doc, '/result/account/billingPlan/funcSearchVAT/text()') == 'true' else False
         
         status.invoiceDataCount = int(self.__get_text(doc, '/result/account/requests/invoiceData/text()'))
         status.allDataCount = int(self.__get_text(doc, '/result/account/requests/allData/text()'))
@@ -767,9 +889,20 @@ class NIP24Client:
         status.viesStatusCount = int(self.__get_text(doc, '/result/account/requests/viesStatus/text()'))
         status.ibanStatusCount = int(self.__get_text(doc, '/result/account/requests/ibanStatus/text()'))
         status.whitelistStatusCount = int(self.__get_text(doc, '/result/account/requests/wlStatus/text()'))
+        status.searchVATCount = int(self.__get_text(doc, '/result/account/requests/searchVAT/text()'))
         status.totalCount = int(self.__get_text(doc, '/result/account/requests/total/text()'))
 
         return status
+
+    def getLastErrorCode(self):
+        """
+        Get last error code
+
+        :return: error code
+        :rtype: int
+        """
+
+        return self.__errcode__
 
     def getLastError(self):
         """
@@ -780,6 +913,26 @@ class NIP24Client:
         """
 
         return self.__err__
+
+    def __clear(self):
+        """
+        Clear error info
+        """
+
+        self.__errcode__ = 0
+        self.__err__ = ''
+
+    def __set(self, code, err=None):
+        """
+        Set error info
+        :param code: error code
+        :type code: int
+        :param err: error message
+        :type err: str
+        """
+
+        self.__errcode__ = code
+        self.__err__ = err if err else Error.message(code)
 
     def __auth(self, method, url):
         """
@@ -860,19 +1013,19 @@ class NIP24Client:
 
         return content
 
-    def __get_text(self, doc, xpath_):
+    def __get_text(self, doc, xpath):
         """
         Get XML element as text
 
         :param doc: etree document
         :type doc: tree
-        :param xpath_: xpath string
-        :type xpath_: string
+        :param xpath: xpath string
+        :type xpath: string
         :return: string
         :rtype: str
         """
 
-        s = doc.xpath(xpath_)
+        s = doc.xpath(xpath)
 
         if not s:
             return ''
@@ -882,38 +1035,38 @@ class NIP24Client:
 
         return str(s[0].strip())
 
-    def __get_date_time(self, doc, xpath_):
+    def __get_date_time(self, doc, xpath):
         """
         Get XML element as date time object
 
         :param doc: etree document
         :type doc: tree
-        :param xpath_: xpath string
-        :type xpath_: string
+        :param xpath: xpath string
+        :type xpath: string
         :return: datetime
         :rtype: datetime or None
         """
 
-        s = self.__get_text(doc, xpath_)
+        s = self.__get_text(doc, xpath)
 
         if len(s) == 0:
             return None
 
         return parse(s)
 
-    def __get_date(self, doc, xpath_):
+    def __get_date(self, doc, xpath):
         """
         Get XML element as date object
 
         :param doc: etree document
         :type doc: tree
-        :param xpath_: xpath string
-        :type xpath_: string
+        :param xpath: xpath string
+        :type xpath: string
         :return: datetime
         :rtype: datetime or None
         """
 
-        s = self.__get_text(doc, xpath_)
+        s = self.__get_text(doc, xpath)
 
         sl = len(s)
 
@@ -928,7 +1081,37 @@ class NIP24Client:
 
         return parse(s)
 
-    def __getPathSuffix(self, type, number):
+    def __get_vat_person(self, doc, xpath, list):
+        """
+        Get element content as VAT person object
+
+        :param doc: etree document
+        :type doc: tree
+        :param xpath: xpath string
+        :type xpath: string
+        :param list: persons array
+        :type list: list of VATPerson
+        :return:
+        """
+
+        i = 1
+        while True:
+            nip = self.__get_text(doc, xpath + '/person[' + str(i) + ']/nip/text()')
+
+            if len(nip) == 0:
+                break
+
+            vp = VATPerson()
+
+            vp.nip = nip
+            vp.companyName = self.__get_text(doc, xpath + '/person[' + str(i) + ']/companyName/text()')
+            vp.firstName = self.__get_text(doc, xpath + '/person[' + str(i) + ']/firstName/text()')
+            vp.lastName = self.__get_text(doc, xpath + '/person[' + str(i) + ']/lastName/text()')
+
+            list.append(vp)
+            i += 1
+
+    def __get_path_suffix(self, type, number):
         """
         Get path suffix
 
@@ -942,30 +1125,39 @@ class NIP24Client:
 
         if type == Number.NIP:
             if not NIP.isValid(number):
-                self.__err__ = 'Numer NIP jest nieprawidłowy'
+                self.__set(Error.CLI_NIP)
                 return False
 
             path = 'nip/' + NIP.normalize(number)
         elif type == Number.REGON:
             if not REGON.isValid(number):
-                self.__err__ = 'Numer REGON jest nieprawidłowy'
+                self.__set(Error.CLI_REGON)
                 return False
 
             path = 'regon/' + REGON.normalize(number)
         elif type == Number.KRS:
             if not KRS.isValid(number):
-                self.__err__ = 'Numer KRS jest nieprawidłowy'
+                self.__set(Error.CLI_KRS)
                 return False
 
             path = 'krs/' + KRS.normalize(number)
         elif type == Number.EUVAT:
             if not EUVAT.isValid(number):
-                self.__err__ = 'Numer EU VAT ID jest nieprawidłowy'
+                self.__set(Error.CLI_EUVAT)
                 return False
 
             path = 'euvat/' + EUVAT.normalize(number)
+        elif type == Number.IBAN:
+            if not IBAN.isValid(number):
+                number = 'PL' + number
+
+                if not IBAN.isValid(number):
+                    self.__set(Error.CLI_IBAN)
+                    return False
+
+            path = 'iban/' + IBAN.normalize(number)
         else:
-            self.__err__ = 'Nieprawidłowy typ numer'
+            self.__set(Error.CLI_NUMBER)
             return False
 
         return path

@@ -20,24 +20,25 @@
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
-from nip24.error import *
-from nip24.number import *
-from nip24.pkd import *
-from nip24.invoicedata import *
-from nip24.alldata import *
-from nip24.viesdata import *
-from nip24.vatstatus import *
-from nip24.ibanstatus import *
-from nip24.wlstatus import *
-from nip24.vatperson import *
-from nip24.vatentity import *
-from nip24.searchresult import *
-from nip24.accountstatus import *
-from nip24.nip import *
-from nip24.regon import *
-from nip24.krs import *
-from nip24.euvat import *
-from nip24.iban import *
-from nip24.nip24client import *
 
-__version__ = '1.3.6'
+class SearchResult:
+    """
+    Search result
+    """
+
+    def __init__(self):
+        self.uid = None
+
+        self.results = []
+
+        self.id = None
+        self.date = None
+        self.source = None
+
+    def __str__(self):
+        return 'SearchResult: [uid = ' + str(self.uid) \
+            + ', results = [' + ', '.join(str(e) for e in self.results)  + ']' \
+            + ', id = ' + str(self.id) \
+            + ', date = ' + str(self.date) \
+            + ', source = ' + str(self.source) \
+            + ']'

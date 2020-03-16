@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2019 NETCAT (www.netcat.pl)
+# Copyright 2015-2020 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2019 NETCAT (www.netcat.pl)
+# @copyright 2015-2020 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -41,3 +41,20 @@ class InvoiceData:
         self.phone = None
         self.email = None
         self.www = None
+
+    def __str__(self):
+        return 'InvoiceData: [uid = ' + str(self.uid) \
+            + ', nip = ' + str(self.nip) \
+            + ', name = ' + str(self.name) \
+            + ', firstName = ' + str(self.firstname) \
+            + ', lastName = ' + str(self.lastname) \
+            + ', street = ' + str(self.street) \
+            + ', streetNumber = ' + str(self.streetNumber) \
+            + ', houseNumber = ' + str(self.houseNumber) \
+            + ', city = ' + str(self.city) \
+            + ', postCode = ' + str(self.postCode) \
+            + ', postCity = ' + str(self.postCity) \
+            + ', phone = ' + str(self.phone) \
+            + ', email = ' + str(self.email) \
+            + ', www = ' + str(self.www) \
+            + ']'
