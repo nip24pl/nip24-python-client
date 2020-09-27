@@ -23,7 +23,7 @@
 from setuptools import setup
 
 setup(name='nip24',
-      version='1.3.6',
+      version='1.3.7',
       description='NIP24 Service Client',
       url='https://www.nip24.pl',
       author='nip24.pl',

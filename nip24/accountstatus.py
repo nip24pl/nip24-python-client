@@ -50,6 +50,7 @@ class AccountStatus:
         self.terytCodes = None
         self.excelAddIn = None
         self.JPKVAT = None
+        self.CLI = None
         self.stats = None
         self.nipMonitor = None
 
@@ -96,6 +97,7 @@ class AccountStatus:
             + ', terytCodes = ' + str(self.terytCodes) \
             + ', excelAddIn = ' + str(self.excelAddIn) \
             + ', jpkVat = ' + str(self.JPKVAT) \
+            + ', cli = ' + str(self.CLI) \
             + ', stats = ' + str(self.stats) \
             + ', NIPMonitor = ' + str(self.nipMonitor) \
             + ', searchByNIP = ' + str(self.searchByNIP) \

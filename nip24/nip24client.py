@@ -41,7 +41,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.3.6'
+    VERSION = '1.3.7'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -866,6 +866,7 @@ class NIP24Client:
         status.terytCodes = True if self.__get_text(doc, '/result/account/billingPlan/terytCodes/text()') == 'true' else False
         status.excelAddIn = True if self.__get_text(doc, '/result/account/billingPlan/excelAddin/text()') == 'true' else False
         status.JPKVAT = True if self.__get_text(doc, '/result/account/billingPlan/jpkVat/text()') == 'true' else False
+        status.CLI = True if self.__get_text(doc, '/result/account/billingPlan/cli/text()') == 'true' else False
         status.stats = True if self.__get_text(doc, '/result/account/billingPlan/stats/text()') == 'true' else False
         status.nipMonitor = True if self.__get_text(doc, '/result/account/billingPlan/nipMonitor/text()') == 'true' else False
         
