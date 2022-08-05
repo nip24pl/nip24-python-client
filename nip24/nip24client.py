@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2020 NETCAT (www.netcat.pl)
+# Copyright 2015-2022 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2020 NETCAT (www.netcat.pl)
+# @copyright 2015-2022 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -41,7 +41,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.3.7'
+    VERSION = '1.3.8'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -502,6 +502,7 @@ class NIP24Client:
         vat.status = int(self.__get_text(doc, '/result/vat/status/text()'))
         vat.result = self.__get_text(doc, '/result/vat/result/text()')
 
+        vat.id = self.__get_text(doc, '/result/vat/id/text()')
         vat.date = self.__get_date(doc, '/result/vat/date/text()')
         vat.source = self.__get_text(doc, '/result/vat/source/text()')
 
