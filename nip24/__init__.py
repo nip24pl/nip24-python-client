@@ -40,4 +40,4 @@ from nip24.euvat import *
 from nip24.iban import *
 from nip24.nip24client import *
 
-__version__ = '1.3.8'
+__version__ = '1.3.9'

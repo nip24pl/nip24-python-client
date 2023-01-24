@@ -41,7 +41,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.3.8'
+    VERSION = '1.3.9'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
