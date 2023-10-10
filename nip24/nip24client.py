@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2022 NETCAT (www.netcat.pl)
+# Copyright 2015-2023 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2022 NETCAT (www.netcat.pl)
+# @copyright 2015-2023 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -41,7 +41,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.3.9'
+    VERSION = '1.4.0'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -1004,8 +1004,9 @@ class NIP24Client:
         # send request
         try :
             req = urllib.request.Request(url)
-            req.add_header('User-Agent', self.__user_agent())
+            req.add_header('Accept', 'application/xml')
             req.add_header('Authorization', auth)
+            req.add_header('User-Agent', self.__user_agent())
 
             res = urllib.request.urlopen(req)
             content = res.read()
