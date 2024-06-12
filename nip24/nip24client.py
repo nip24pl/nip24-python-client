@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2023 NETCAT (www.netcat.pl)
+# Copyright 2015-2024 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2023 NETCAT (www.netcat.pl)
+# @copyright 2015-2024 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -27,21 +27,23 @@ import hmac
 import os
 import sys
 import time
-import urllib.request
+import urllib.error
 import urllib.parse
+import urllib.request
 
-from nip24 import Error, Number, NIP, REGON, KRS, EUVAT, PKD, IBAN, AllData, InvoiceData, VIESData, \
-    VATStatus, IBANStatus, WLStatus, VATPerson, VATEntity, SearchResult, AccountStatus
+from nip24 import (Error, Number, NIP, REGON, KRS, EUVAT, BusinessPartner, PKD, IBAN, AllData, InvoiceData,
+                   VIESData, VATStatus, IBANStatus, WLStatus, VATPerson, VATEntity, SearchResult, AccountStatus)
 from io import BytesIO
 from lxml import etree
 from dateutil.parser import parse
+
 
 class NIP24Client:
     """
     NIP24 service client
     """
 
-    VERSION = '1.4.0'
+    VERSION = '1.4.1'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -51,7 +53,7 @@ class NIP24Client:
 
     HMAC_ALG = hashlib.sha256
 
-    def __init__(self, id = None, key = None):
+    def __init__(self, id=None, key=None):
         """
         Construct new service client object
 
@@ -347,6 +349,30 @@ class NIP24Client:
         all.ownershipFormCode = self.__get_text(doc, '/result/firm/ownershipForm/code/text()')
         all.ownershipFormName = self.__get_text(doc, '/result/firm/ownershipForm/name/text()')
 
+        all.businessPartner = []
+
+        i = 1
+        while True:
+            code = self.__get_text(doc, '/result/firm/businessPartners/businessPartner[' + str(i) + ']/regon/text()')
+
+            if len(code) == 0:
+                break
+
+            firm = self.__get_text(doc, '/result/firm/businessPartners/businessPartner[' + str(i) + ']/firmName/text()')
+            first = self.__get_text(doc, '/result/firm/businessPartners/businessPartner[' + str(i) + ']/firstName/text()')
+            second = self.__get_text(doc, '/result/firm/businessPartners/businessPartner[' + str(i) + ']/secondName/text()')
+            last = self.__get_text(doc, '/result/firm/businessPartners/businessPartner[' + str(i) + ']/lastName/text()')
+
+            bp = BusinessPartner()
+            bp.regon = code
+            bp.firmName = firm
+            bp.firstName = first
+            bp.secondName = second
+            bp.lastName = last
+
+            all.businessPartner.append(bp)
+            i += 1
+
         all.pkd = []
 
         i = 1
@@ -360,7 +386,6 @@ class NIP24Client:
             pri = self.__get_text(doc, '/result/firm/PKDs/PKD[' + str(i) + ']/primary/text()')
 
             pkd = PKD()
-
             pkd.code = code
             pkd.description = descr
             pkd.primary = True if pri == "true" else False
@@ -972,7 +997,7 @@ class NIP24Client:
 
         mac = base64.b64encode(hmac.new(self.__key__.encode(), s.encode(), self.HMAC_ALG).digest()).decode()
 
-        return 'MAC id="' + self.__id__ + '", ts="' + str(ts) + '", nonce="' +  nonce + '", mac="' + mac + '"'
+        return 'MAC id="' + self.__id__ + '", ts="' + str(ts) + '", nonce="' + nonce + '", mac="' + mac + '"'
 
     def __user_agent(self):
         """
@@ -1002,7 +1027,7 @@ class NIP24Client:
             return False
 
         # send request
-        try :
+        try:
             req = urllib.request.Request(url)
             req.add_header('Accept', 'application/xml')
             req.add_header('Authorization', auth)
@@ -1010,8 +1035,8 @@ class NIP24Client:
 
             res = urllib.request.urlopen(req)
             content = res.read()
-        except urllib.request.URLError as ue:
-            #print ue.code
+        except urllib.error.URLError as ue:
+            # print ue.code
             return False
 
         return content

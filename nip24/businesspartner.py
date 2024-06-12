@@ -20,25 +20,23 @@
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
-from nip24.error import *
-from nip24.number import *
-from nip24.businesspartner import *
-from nip24.pkd import *
-from nip24.invoicedata import *
-from nip24.alldata import *
-from nip24.viesdata import *
-from nip24.vatstatus import *
-from nip24.ibanstatus import *
-from nip24.wlstatus import *
-from nip24.vatperson import *
-from nip24.vatentity import *
-from nip24.searchresult import *
-from nip24.accountstatus import *
-from nip24.nip import *
-from nip24.regon import *
-from nip24.krs import *
-from nip24.euvat import *
-from nip24.iban import *
-from nip24.nip24client import *
 
-__version__ = '1.4.1'
+class BusinessPartner:
+    """
+    Business partner data
+    """
+
+    def __init__(self):
+        self.regon = None
+        self.firmName = None
+        self.firstName = None
+        self.secondName = None
+        self.lastName = None
+
+    def __str__(self):
+        return 'BusinessPartner: [regon = ' + str(self.regon) \
+            + ', firmName = ' + str(self.firmName) \
+            + ', firstName = ' + str(self.firstName) \
+            + ', secondName = ' + str(self.secondName) \
+            + ', lastName = ' + str(self.lastName) \
+            + ']'
