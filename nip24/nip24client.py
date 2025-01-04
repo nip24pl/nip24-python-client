@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright 2015-2024 NETCAT (www.netcat.pl)
+# Copyright 2015-2025 NETCAT (www.netcat.pl)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 # @author NETCAT <firma@netcat.pl>
-# @copyright 2015-2024 NETCAT (www.netcat.pl)
+# @copyright 2015-2025 NETCAT (www.netcat.pl)
 # @license http://www.apache.org/licenses/LICENSE-2.0
 #
 
@@ -43,7 +43,7 @@ class NIP24Client:
     NIP24 service client
     """
 
-    VERSION = '1.4.1'
+    VERSION = '1.4.2'
 
     PRODUCTION_URL = 'https://www.nip24.pl/api'
     TEST_URL = 'https://www.nip24.pl/api-test'
@@ -384,11 +384,13 @@ class NIP24Client:
 
             descr = self.__get_text(doc, '/result/firm/PKDs/PKD[' + str(i) + ']/description/text()')
             pri = self.__get_text(doc, '/result/firm/PKDs/PKD[' + str(i) + ']/primary/text()')
+            ver = self.__get_text(doc, '/result/firm/PKDs/PKD[' + str(i) + ']/version/text()')
 
             pkd = PKD()
             pkd.code = code
             pkd.description = descr
             pkd.primary = True if pri == "true" else False
+            pkd.version = ver
 
             all.pkd.append(pkd)
             i += 1
